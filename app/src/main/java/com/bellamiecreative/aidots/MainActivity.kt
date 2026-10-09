@@ -93,7 +93,7 @@ class MainActivity : Activity() {
         }
         scrollView.addView(
             chatContainer,
-            ScrollView.LayoutParams(-1, -2)
+            android.widget.FrameLayout.LayoutParams(-1, -2)
         )
         root.addView(
             scrollView,
@@ -115,7 +115,7 @@ class MainActivity : Activity() {
 
         input = EditText(this).apply {
             hint = "Type a message..."
-            singleLine = true
+            setSingleLine(true)
             imeOptions = EditorInfo.IME_ACTION_SEND
             textSize = 16f
         }
