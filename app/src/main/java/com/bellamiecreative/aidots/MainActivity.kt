@@ -188,8 +188,10 @@ class MainActivity : Activity() {
         input.isEnabled = false
         statusText.text = "Generating story — vibration active"
 
-        // Vibration is triggered for each visible character as it appears below.
         val characters = story.toCharArray()
+        // Submit one complete haptic waveform. Rapid repeated vibrate() calls can be
+        // dropped or reset by some Android devices, causing vibration to disappear.
+        startStoryVibration(characters)
         var index = 0
 
         val task = object : Runnable {
@@ -203,9 +205,6 @@ class MainActivity : Activity() {
 
                 val character = characters[index]
                 responseView.append(character.toString())
-                if (!character.isWhitespace()) {
-                    vibrateForCharacter()
-                }
                 index++
 
                 scrollToBottom()
@@ -220,21 +219,50 @@ class MainActivity : Activity() {
         handler.post(task)
     }
 
-    // A short, subtle pulse for each displayed character (rather than a repeating buzz).
-    private fun vibrateForCharacter() {
-        if (!vibrator.hasVibrator()) return
+    // A single waveform is more reliable than restarting the vibrator for every character.
+    // Its short pulse/gap sequence follows the same character timing as the text stream.
+    private fun startStoryVibration(characters: CharArray) {
+        if (!vibrator.hasVibrator()) {
+            statusText.text = "No vibration hardware detected"
+            return
+        }
 
         try {
+            val pulseMs = 22L
+            val timings = ArrayList<Long>(characters.size * 2 + 1)
+            val amplitudes = ArrayList<Int>(characters.size * 2 + 1)
+
+            // Waveforms start with an OFF segment, then alternate ON and OFF.
+            timings.add(0L)
+            amplitudes.add(0)
+
+            for (character in characters) {
+                val characterDelay = if (
+                    character == '.' || character == ',' || character == ':'
+                ) 110L else 35L
+
+                timings.add(pulseMs)
+                amplitudes.add(
+                    if (character.isWhitespace()) 0
+                    else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 220
+                    else 255
+                )
+
+                timings.add(characterDelay - pulseMs)
+                amplitudes.add(0)
+            }
+
+            val timingArray = timings.toLongArray()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(
-                    VibrationEffect.createOneShot(12, VibrationEffect.DEFAULT_AMPLITUDE)
+                    VibrationEffect.createWaveform(timingArray, amplitudes.toIntArray(), -1)
                 )
             } else {
                 @Suppress("DEPRECATION")
-                vibrator.vibrate(12)
+                vibrator.vibrate(timingArray, -1)
             }
-        } catch (_: Exception) {
-            // Keep story generation running even if vibration is unavailable.
+        } catch (error: Exception) {
+            statusText.text = "Vibration unavailable: ${error.javaClass.simpleName}"
         }
     }
 
