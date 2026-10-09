@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.os.VibratorManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.Gravity
@@ -46,12 +45,8 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            getSystemService(VibratorManager::class.java).defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
+        @Suppress("DEPRECATION")
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
         buildInterface()
         addMessage(
