@@ -210,7 +210,7 @@ class MainActivity : Activity() {
                 scrollToBottom()
 
                 val lastChar = characters[index - 1]
-                val delay = if (lastChar == '.' || lastChar == ',' || lastChar == ':') 180L else 75L
+                val delay = if (lastChar == '.' || lastChar == ',' || lastChar == ':') 220L else 100L
                 handler.postDelayed(this, delay)
             }
         }
@@ -228,8 +228,9 @@ class MainActivity : Activity() {
         }
 
         try {
-            // Keep each pulse brief, with a longer quiet gap so it feels like one tap per character.
-            val pulseMs = 10L
+            // Many phone vibration motors do not reliably render 10 ms pulses.
+            // Use a clearly detectable pulse and a longer gap for one distinct tap per character.
+            val pulseMs = 25L
             val timings = ArrayList<Long>(characters.size * 2 + 1)
             val amplitudes = ArrayList<Int>(characters.size * 2 + 1)
 
@@ -240,7 +241,7 @@ class MainActivity : Activity() {
             for (character in characters) {
                 val characterDelay = if (
                     character == '.' || character == ',' || character == ':'
-                ) 180L else 75L
+                ) 220L else 100L
 
                 timings.add(pulseMs)
                 amplitudes.add(
