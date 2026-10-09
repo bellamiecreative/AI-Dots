@@ -40,3 +40,5 @@ Open the Actions tab and run the **Build Android APK** workflow, or push a commi
 4. Vibration should repeat while the story streams and stop when it finishes.
 
 The app cannot force vibration if the device has no vibrator, system vibration is disabled, or device policy blocks it.
+
+Build verification is performed by the GitHub Actions workflow. A successful build confirms APK compilation, but actual hardware vibration must still be tested on a physical Android device.
