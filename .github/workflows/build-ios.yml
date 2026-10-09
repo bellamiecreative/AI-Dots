@@ -31,7 +31,9 @@ jobs:
       - name: Generate a fresh Xcode project
         run: |
           cd ios
-          xcodegen generate --spec project.yml --project AIDotsVibrationTest.xcodeproj
+          rm -rf AIDotsVibrationTest.xcodeproj
+          xcodegen generate --spec project.yml
+          test -f AIDotsVibrationTest.xcodeproj/project.pbxproj
 
       - name: Build for iOS Simulator
         run: |
