@@ -125,7 +125,7 @@ struct ContentView: View {
                 }
 
                 if !character.isWhitespace {
-                    impact.impactOccurred(intensity: character.isPunctuation ? 0.8 : 0.65)
+                    impact.impactOccurred(intensity: (character == "." || character == "," || character == ":") ? 0.8 : 0.65)
                     impact.prepare()
                 }
 
