@@ -210,7 +210,7 @@ class MainActivity : Activity() {
                 scrollToBottom()
 
                 val lastChar = characters[index - 1]
-                val delay = if (lastChar == '.' || lastChar == ',' || lastChar == ':') 110L else 35L
+                val delay = if (lastChar == '.' || lastChar == ',' || lastChar == ':') 180L else 75L
                 handler.postDelayed(this, delay)
             }
         }
@@ -228,7 +228,8 @@ class MainActivity : Activity() {
         }
 
         try {
-            val pulseMs = 22L
+            // Keep each pulse brief, with a longer quiet gap so it feels like one tap per character.
+            val pulseMs = 10L
             val timings = ArrayList<Long>(characters.size * 2 + 1)
             val amplitudes = ArrayList<Int>(characters.size * 2 + 1)
 
@@ -239,7 +240,7 @@ class MainActivity : Activity() {
             for (character in characters) {
                 val characterDelay = if (
                     character == '.' || character == ',' || character == ':'
-                ) 110L else 35L
+                ) 180L else 75L
 
                 timings.add(pulseMs)
                 amplitudes.add(
