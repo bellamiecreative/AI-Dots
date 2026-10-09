@@ -188,8 +188,7 @@ class MainActivity : Activity() {
         input.isEnabled = false
         statusText.text = "Generating story — vibration active"
 
-        startRepeatingVibration()
-
+        // Vibration is triggered for each visible character as it appears below.
         val characters = story.toCharArray()
         var index = 0
 
@@ -202,13 +201,17 @@ class MainActivity : Activity() {
                     return
                 }
 
-                responseView.append(characters[index].toString())
+                val character = characters[index]
+                responseView.append(character.toString())
+                if (!character.isWhitespace()) {
+                    vibrateForCharacter()
+                }
                 index++
 
                 scrollToBottom()
 
                 val lastChar = characters[index - 1]
-                val delay = if (lastChar == '.' || lastChar == ',' || lastChar == ':') 100L else 22L
+                val delay = if (lastChar == '.' || lastChar == ',' || lastChar == ':') 110L else 35L
                 handler.postDelayed(this, delay)
             }
         }
@@ -217,23 +220,21 @@ class MainActivity : Activity() {
         handler.post(task)
     }
 
-    private fun startRepeatingVibration() {
-        if (!vibrator.hasVibrator()) {
-            statusText.text = "Generating story — no vibrator detected"
-            return
-        }
+    // A short, subtle pulse for each displayed character (rather than a repeating buzz).
+    private fun vibrateForCharacter() {
+        if (!vibrator.hasVibrator()) return
 
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val timings = longArrayOf(0, 100, 900)
-                val effect = VibrationEffect.createWaveform(timings, 0)
-                vibrator.vibrate(effect)
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(12, VibrationEffect.DEFAULT_AMPLITUDE)
+                )
             } else {
                 @Suppress("DEPRECATION")
-                vibrator.vibrate(longArrayOf(0, 100, 900), 0)
+                vibrator.vibrate(12)
             }
-        } catch (error: Exception) {
-            statusText.text = "Story running; vibration unavailable"
+        } catch (_: Exception) {
+            // Keep story generation running even if vibration is unavailable.
         }
     }
 
